@@ -181,7 +181,9 @@
         const filtered = items.filter(i => currentFilter === "Tutti" || i.cat === currentFilter).reverse();
         
         filtered.forEach(item => {
-            let img = item.img.replace("ibb.co", "i.ibb.co") + (item.img.includes(".png") || item.img.includes(".jpg") ? "" : ".jpg");
+            // MODIFICA QUI: Rende compatibile il link con ImgBB per PNG e JPG senza forzare l'estensione
+            let img = item.img.replace("ibb.co", "i.ibb.co");
+            
             grid.innerHTML += `
                 <div class="card">
                     <div class="badge">${item.cat}</div>
