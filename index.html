@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
+    <meta name="google-site-verification" content="Z_r4RFOXyibszHo4pYrVdNpBPPXnJwEbArNBVcLfb_s" />
     <meta name="google-site-verification" content="qMS3rZJY-AlTnwkC161_LgvHIISHG6ocyf95XZZPiGQ" />
     
     <title>Best Mulebuy Global Research Spreadsheet</title>
@@ -181,23 +182,13 @@
         const filtered = items.filter(i => currentFilter === "Tutti" || i.cat === currentFilter).reverse();
         
         filtered.forEach(item => {
-            // SMART FIX PER IMGBB: Se incolli il link sbagliato, lo corregge lui
-            let imgSrc = item.img;
-            if (imgSrc.includes("ibb.co") && !imgSrc.includes("i.ibb.co")) {
-                // Se è un link tipo ibb.co/XYZ lo trasforma nel pattern necessario per le immagini
-                // Nota: se il link non ha estensione, i.ibb.co spesso richiede il nome file.
-                // Questa sostituzione copre il caso più comune di errore link.
-                imgSrc = imgSrc.replace("ibb.co", "i.ibb.co");
-            }
+            // MODIFICA QUI: Rende compatibile il link con ImgBB per PNG e JPG senza forzare l'estensione
+            let img = item.img.replace("ibb.co", "i.ibb.co");
             
             grid.innerHTML += `
                 <div class="card">
                     <div class="badge">${item.cat}</div>
-                    <div class="img-box">
-                        <img src="${imgSrc}" 
-                             alt="${item.name}" 
-                             onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400?text=Link+Immagine+Errato';">
-                    </div>
+                    <div class="img-box"><img src="${img}" alt="${item.name}" onerror="this.src='https://placehold.co/400x400?text=Immagine+In+Caricamento'"></div>
                     <h3>${item.name}</h3>
                     <div class="price">€${item.price}</div>
                     <a href="${item.link}" target="_blank" class="btn btn-p" style="width:100%; box-sizing:border-box;">🛒 ACQUISTA ORA</a>
