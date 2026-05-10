@@ -59,7 +59,12 @@
 
         .gear { position: fixed; bottom: 20px; right: 20px; width: 40px; height: 40px; background: white; border-radius: 50%; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #cbd5e1; z-index: 1500; }
 
-        @media (max-width: 768px) { .grid { grid-template-columns: 1fr 1fr; gap: 10px; } .hero h1 { font-size: 34px; } .header-nav { display: none; } }
+        @media (max-width: 768px) { 
+            .grid { grid-template-columns: 1fr 1fr; gap: 10px; } 
+            .hero h1 { font-size: 34px; } 
+            .header-nav { display: none; } 
+            #mobile-nav-container { display: flex !important; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+        }
     </style>
 </head>
 <body>
@@ -81,6 +86,8 @@
         <div class="search-container">
             <input type="text" id="search" placeholder="Cerca un articolo..." onkeyup="search()">
         </div>
+
+        <div id="mobile-nav-container" style="display:none;"></div>
 
         <div class="cats-bar" id="cats-list"></div>
     </div>
@@ -186,7 +193,6 @@
         const filtered = items.filter(i => currentFilter === "Tutti" || i.cat === currentFilter).reverse();
         
         filtered.forEach(item => {
-            // NORMALIZZAZIONE LINK IMMAGINE
             let imgUrl = item.img || '';
             if (imgUrl.includes("ibb.co") && !imgUrl.includes("i.ibb.co")) {
                 imgUrl = imgUrl.replace("ibb.co", "i.ibb.co");
@@ -209,7 +215,6 @@
         const id = document.getElementById('edit-id').value || Date.now();
         let rawImg = document.getElementById('in-img').value.trim();
         
-        // Auto-fix link ImgBB prima del salvataggio
         if (rawImg.includes("ibb.co") && !rawImg.includes("i.ibb.co")) {
             rawImg = rawImg.replace("ibb.co", "i.ibb.co");
         }
@@ -292,16 +297,22 @@
     function renderLinks(data) {
         const navT = document.getElementById('nav-top');
         const navB = document.getElementById('nav-bottom');
+        const mobileNav = document.getElementById('mobile-nav-container');
         const editT = document.getElementById('top-btns-edit');
         const editB = document.getElementById('bot-btns-edit');
         if(!navT) return;
         navT.innerHTML = ''; navB.innerHTML = ''; editT.innerHTML = ''; editB.innerHTML = '';
+        mobileNav.innerHTML = '';
 
         const tops = data?.top || Array(5).fill({t:'', l:''});
         const bots = data?.bot || Array(4).fill({t:'', l:''});
 
         tops.forEach((link, i) => {
-            if(link.t) navT.innerHTML += `<a href="${link.l}" target="_blank" class="btn btn-s">${link.t}</a>`;
+            if(link.t) {
+                const btnMarkup = `<a href="${link.l}" target="_blank" class="btn btn-s">${link.t}</a>`;
+                navT.innerHTML += btnMarkup;
+                mobileNav.innerHTML += btnMarkup;
+            }
             editT.innerHTML += `<div style="display:flex; gap:10px; margin-bottom:5px;"><input type="text" class="tt" value="${link.t}" placeholder="Testo"> <input type="text" class="tl" value="${link.l}" placeholder="URL"></div>`;
         });
         bots.forEach((link, i) => {
