@@ -50,7 +50,11 @@
         .btn { padding: 12px 20px; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; transition: 0.3s; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; }
         .btn-p { background: var(--primary); color: white; }
         .btn-s { background: #f1f5f9; color: var(--text); font-size: 12px; }
-        .btn-s:hover { background: var(--primary); color: white; }
+        .btn-s:hover { background: #e2e8f0; color: var(--text); }
+
+        /* Stile specifico per il tasto messaggi con immagine */
+        .btn-msg { background: var(--primary); width: 45px; height: 45px; padding: 0; border-radius: 50%; overflow: hidden; }
+        .btn-msg img { width: 100%; height: 100%; object-fit: cover; }
 
         #admin-panel { display: none; background: #fff; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; overflow-y: auto; padding: 40px 5%; box-sizing: border-box; }
         .admin-nav { display: flex; gap: 15px; margin-bottom: 30px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; }
@@ -78,7 +82,9 @@
             <div style="font-weight:900; font-size:1.2rem;">Mulebuy <span style="color:var(--primary)">Spreadsheet</span></div>
         </div>
         <nav class="header-nav" id="nav-top"></nav>
-        <button class="btn btn-p" onclick="openMsg()"><i class="fa-solid fa-paper-plane"></i></button>
+        <button class="btn btn-msg" onclick="openMsg()">
+            <img src="https://i.ibb.co/CKDH3Bdw/il-570x-N-4421925538-m69h-removebg-preview.png" alt="Messaggi">
+        </button>
     </header>
 
     <div class="hero">
@@ -190,7 +196,6 @@
         const filtered = items.filter(i => currentFilter === "Tutti" || i.cat === currentFilter).reverse();
         
         filtered.forEach(item => {
-            // Logica robusta anti-sparizione immagini ImgBB
             let imgUrl = item.img || '';
             if (imgUrl.includes("ibb.co") && !imgUrl.includes("i.ibb.co")) {
                 imgUrl = imgUrl.replace("ibb.co", "i.ibb.co");
@@ -213,12 +218,9 @@
     function saveItem() {
         const id = document.getElementById('edit-id').value || Date.now();
         let rawImg = document.getElementById('in-img').value.trim();
-        
-        // Pulizia automatica in fase di salvataggio
         if (rawImg.includes("ibb.co") && !rawImg.includes("i.ibb.co")) {
             rawImg = rawImg.replace("ibb.co", "i.ibb.co");
         }
-
         const data = {
             id,
             name: document.getElementById('in-name').value,
@@ -260,10 +262,8 @@
         const sel = document.getElementById('in-cat');
         const adm = document.getElementById('admin-cats-list');
         if(!list || !sel || !adm) return;
-
         list.innerHTML = `<button class="btn btn-s ${currentFilter==='Tutti'?'btn-p':''}" onclick="setFilter('Tutti')">Tutti</button>`;
         sel.innerHTML = ''; adm.innerHTML = '';
-        
         categories.forEach(c => {
             list.innerHTML += `<button class="btn btn-s ${currentFilter===c?'btn-p':''}" onclick="setFilter('${c}')">${c}</button>`;
             sel.innerHTML += `<option value="${c}">${c}</option>`;
@@ -275,21 +275,10 @@
 
     function addCategory() {
         const nc = document.getElementById('new-cat').value.trim();
-        if(nc) { 
-            if(!categories.includes(nc)) {
-                categories.push(nc); 
-                db.ref('categories').set(categories); 
-            }
-            document.getElementById('new-cat').value=''; 
-        }
+        if(nc) { if(!categories.includes(nc)) { categories.push(nc); db.ref('categories').set(categories); } document.getElementById('new-cat').value=''; }
     }
 
-    function delCat(c) { 
-        if(confirm("Eliminare la categoria " + c + "?")) {
-            categories = categories.filter(x => x !== c); 
-            db.ref('categories').set(categories); 
-        }
-    }
+    function delCat(c) { if(confirm("Eliminare la categoria " + c + "?")) { categories = categories.filter(x => x !== c); db.ref('categories').set(categories); } }
 
     function renderLinks(data) {
         const navT = document.getElementById('nav-top');
@@ -297,17 +286,15 @@
         const mobileNav = document.getElementById('mobile-nav-container');
         const editT = document.getElementById('top-btns-edit');
         const editB = document.getElementById('bot-btns-edit');
-        
         if(!navT) return;
         navT.innerHTML = ''; navB.innerHTML = ''; editT.innerHTML = ''; editB.innerHTML = '';
         mobileNav.innerHTML = '';
-
         const tops = data?.top || Array(5).fill({t:'', l:''});
         const bots = data?.bot || Array(4).fill({t:'', l:''});
-
         tops.forEach((link, i) => {
             if(link.t) {
-                const btnMarkup = `<a href="${link.l}" target="_blank" class="btn btn-s" style="background: ${link.t === 'QC' ? 'var(--primary)' : '#f1f5f9'}; color: ${link.t === 'QC' ? 'white' : 'var(--text)'}">${link.t}</a>`;
+                // Tasti custom tutti con stile neutro btn-s
+                const btnMarkup = `<a href="${link.l}" target="_blank" class="btn btn-s">${link.t}</a>`;
                 navT.innerHTML += btnMarkup;
                 mobileNav.innerHTML += btnMarkup;
             }
@@ -334,40 +321,30 @@
     }
 
     function setFilter(c) { currentFilter = c; renderUI(); renderCats(); }
-    
     function search() {
         const q = document.getElementById('search').value.toLowerCase();
-        document.querySelectorAll('#main-grid .card').forEach(c => {
-            c.style.display = c.innerText.toLowerCase().includes(q) ? 'flex' : 'none';
-        });
+        document.querySelectorAll('#main-grid .card').forEach(c => { c.style.display = c.innerText.toLowerCase().includes(q) ? 'flex' : 'none'; });
     }
-
     function login() { if(prompt("PIN ADMIN:") === "160710") document.getElementById('admin-panel').style.display = 'block'; }
-    
     function showTab(id, btn) {
         document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
         document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
         document.getElementById(id).style.display = 'block';
         btn.classList.add('active');
     }
-
     function openMsg() {
         const m = prompt("Inviaci un suggerimento o un messaggio:");
         if(m) db.ref('messages/' + Date.now()).set({text: m, date: new Date().toLocaleString()});
     }
-
     function renderAdminMsgs(data) {
-        const cont = document.getElementById('admin-msgs'); 
-        if(!cont) return;
+        const cont = document.getElementById('admin-msgs'); if(!cont) return;
         cont.innerHTML = '';
         if(data) Object.keys(data).forEach(k => {
             cont.innerHTML += `<div class="admin-card"><small>${data[k].date}</small><p>${data[k].text}</p><button onclick="db.ref('messages/${k}').remove()" style="color:red; border:none; background:none; cursor:pointer;">Elimina</button></div>`;
         });
     }
-
     function renderInventory() {
-        const cont = document.getElementById('admin-inventory'); 
-        if(!cont) return;
+        const cont = document.getElementById('admin-inventory'); if(!cont) return;
         cont.innerHTML = '';
         items.slice().reverse().forEach(i => {
             cont.innerHTML += `<div class="item-row" style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#fff; margin-bottom:5px; border-radius:10px; border:1px solid #eee;">
