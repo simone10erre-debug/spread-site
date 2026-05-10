@@ -11,6 +11,8 @@
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 
@@ -52,7 +54,6 @@
         .btn-s { background: #f1f5f9; color: var(--text); font-size: 12px; }
         .btn-s:hover { background: #e2e8f0; }
 
-        /* Nuovo stile tasto messaggi: uguale agli altri ma con logo piccolo */
         .btn-msg-custom { background: var(--primary); color: white; }
         .btn-msg-custom img { height: 18px; width: auto; }
 
@@ -179,6 +180,11 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    
+    // Auth logic
+    const auth = firebase.auth();
+    const provider = new firebase.auth.GoogleAuthProvider();
+    const ADMIN_EMAIL = "simone10erre@gmail.com";
 
     let items = [];
     let categories = ["Scarpe", "Vestiti", "Accessori"];
@@ -319,7 +325,23 @@
         const q = document.getElementById('search').value.toLowerCase();
         document.querySelectorAll('#main-grid .card').forEach(c => { c.style.display = c.innerText.toLowerCase().includes(q) ? 'flex' : 'none'; });
     }
-    function login() { if(prompt("PIN ADMIN:") === "160710") document.getElementById('admin-panel').style.display = 'block'; }
+
+    function login() { 
+        auth.signInWithPopup(provider)
+            .then((result) => {
+                if (result.user.email === ADMIN_EMAIL) {
+                    document.getElementById('admin-panel').style.display = 'block';
+                } else {
+                    alert("Accesso negato: solo l'amministratore simone10erre@gmail.com può accedere.");
+                    auth.signOut();
+                }
+            })
+            .catch((error) => {
+                console.error("Errore login:", error);
+                alert("Errore durante l'autenticazione con Google.");
+            });
+    }
+
     function showTab(id, btn) {
         document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
         document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
