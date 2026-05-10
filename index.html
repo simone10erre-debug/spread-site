@@ -33,7 +33,6 @@
         #search:focus { border-color: var(--primary); }
         .cats-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; }
 
-        /* NUOVO: Banda per tasti custom su mobile */
         #mobile-nav-container { display: none; gap: 10px; flex-wrap: wrap; margin-top: 20px; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; padding: 0 5% 100px; max-width: 1200px; margin: auto; }
@@ -43,7 +42,7 @@
         .badge { position: absolute; top: 20px; left: 20px; background: var(--glass); backdrop-filter: blur(10px); padding: 5px 12px; border-radius: 10px; font-size: 11px; font-weight: 800; z-index: 5; border: 1px solid rgba(255,255,255,0.3); text-transform: uppercase; }
         
         .img-box { width: 100%; aspect-ratio: 1; border-radius: 20px; background: #fff; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
-        .img-box img { max-width: 90%; max-height: 90%; object-fit: contain; }
+        .img-box img { max-width: 95%; max-height: 95%; object-fit: contain; }
         
         .card h3 { font-size: 15px; margin: 10px 0; text-align: center; font-weight: 700; height: 36px; overflow: hidden; }
         .price { font-size: 22px; font-weight: 900; color: var(--primary); text-align: center; margin-bottom: 15px; }
@@ -66,7 +65,7 @@
             .grid { grid-template-columns: 1fr 1fr; gap: 10px; } 
             .hero h1 { font-size: 34px; } 
             .header-nav { display: none; } 
-            #mobile-nav-container { display: flex; } /* Mostra la banda su mobile */
+            #mobile-nav-container { display: flex; } 
         }
     </style>
 </head>
@@ -191,11 +190,18 @@
         const filtered = items.filter(i => currentFilter === "Tutti" || i.cat === currentFilter).reverse();
         
         filtered.forEach(item => {
-            let img = item.img.replace("ibb.co", "i.ibb.co");
+            // Logica robusta anti-sparizione immagini ImgBB
+            let imgUrl = item.img || '';
+            if (imgUrl.includes("ibb.co") && !imgUrl.includes("i.ibb.co")) {
+                imgUrl = imgUrl.replace("ibb.co", "i.ibb.co");
+            }
+            
             grid.innerHTML += `
                 <div class="card">
                     <div class="badge">${item.cat}</div>
-                    <div class="img-box"><img src="${img}" alt="${item.name}" onerror="this.src='https://placehold.co/400x400?text=Immagine+In+Caricamento'"></div>
+                    <div class="img-box">
+                        <img src="${imgUrl}" alt="${item.name}" loading="lazy" onerror="this.src='https://placehold.co/400x400?text=Immagine+Non+Disponibile'">
+                    </div>
                     <h3>${item.name}</h3>
                     <div class="price">€${item.price}</div>
                     <a href="${item.link}" target="_blank" class="btn btn-p" style="width:100%; box-sizing:border-box;">🛒 ACQUISTA ORA</a>
@@ -206,12 +212,19 @@
 
     function saveItem() {
         const id = document.getElementById('edit-id').value || Date.now();
+        let rawImg = document.getElementById('in-img').value.trim();
+        
+        // Pulizia automatica in fase di salvataggio
+        if (rawImg.includes("ibb.co") && !rawImg.includes("i.ibb.co")) {
+            rawImg = rawImg.replace("ibb.co", "i.ibb.co");
+        }
+
         const data = {
             id,
             name: document.getElementById('in-name').value,
             price: document.getElementById('in-price').value,
             link: document.getElementById('in-link').value,
-            img: document.getElementById('in-img').value,
+            img: rawImg,
             cat: document.getElementById('in-cat').value
         };
         if(!data.name || !data.img) return alert("Compila i campi obbligatori!");
@@ -230,12 +243,14 @@
         document.getElementById('in-img').value = item.img;
         document.getElementById('in-cat').value = item.cat;
         document.getElementById('form-title').innerText = "Modifica Articolo";
-        window.scrollTo(0,0);
+        document.getElementById('admin-panel').scrollTo(0,0);
     }
 
     function resetForm() {
         document.getElementById('edit-id').value = '';
         document.getElementById('in-name').value = '';
+        document.getElementById('in-price').value = '';
+        document.getElementById('in-link').value = '';
         document.getElementById('in-img').value = '';
         document.getElementById('form-title').innerText = "Aggiungi Prodotto";
     }
@@ -244,6 +259,8 @@
         const list = document.getElementById('cats-list');
         const sel = document.getElementById('in-cat');
         const adm = document.getElementById('admin-cats-list');
+        if(!list || !sel || !adm) return;
+
         list.innerHTML = `<button class="btn btn-s ${currentFilter==='Tutti'?'btn-p':''}" onclick="setFilter('Tutti')">Tutti</button>`;
         sel.innerHTML = ''; adm.innerHTML = '';
         
@@ -257,31 +274,42 @@
     }
 
     function addCategory() {
-        const nc = document.getElementById('new-cat').value;
-        if(nc) { categories.push(nc); db.ref('categories').set(categories); document.getElementById('new-cat').value=''; }
+        const nc = document.getElementById('new-cat').value.trim();
+        if(nc) { 
+            if(!categories.includes(nc)) {
+                categories.push(nc); 
+                db.ref('categories').set(categories); 
+            }
+            document.getElementById('new-cat').value=''; 
+        }
     }
 
-    function delCat(c) { categories = categories.filter(x => x !== c); db.ref('categories').set(categories); }
+    function delCat(c) { 
+        if(confirm("Eliminare la categoria " + c + "?")) {
+            categories = categories.filter(x => x !== c); 
+            db.ref('categories').set(categories); 
+        }
+    }
 
     function renderLinks(data) {
         const navT = document.getElementById('nav-top');
         const navB = document.getElementById('nav-bottom');
-        const mobileNav = document.getElementById('mobile-nav-container'); // Container mobile
+        const mobileNav = document.getElementById('mobile-nav-container');
         const editT = document.getElementById('top-btns-edit');
         const editB = document.getElementById('bot-btns-edit');
         
+        if(!navT) return;
         navT.innerHTML = ''; navB.innerHTML = ''; editT.innerHTML = ''; editB.innerHTML = '';
-        mobileNav.innerHTML = ''; // Svuota banda mobile
+        mobileNav.innerHTML = '';
 
         const tops = data?.top || Array(5).fill({t:'', l:''});
         const bots = data?.bot || Array(4).fill({t:'', l:''});
 
         tops.forEach((link, i) => {
             if(link.t) {
-                // Desktop
-                navT.innerHTML += `<a href="${link.l}" target="_blank" class="btn btn-s">${link.t}</a>`;
-                // Mobile (stesso stile ma in banda dedicata)
-                mobileNav.innerHTML += `<a href="${link.l}" target="_blank" class="btn btn-s" style="background: ${link.t === 'QC' ? 'var(--primary)' : '#f1f5f9'}; color: ${link.t === 'QC' ? 'white' : 'var(--text)'}">${link.t}</a>`;
+                const btnMarkup = `<a href="${link.l}" target="_blank" class="btn btn-s" style="background: ${link.t === 'QC' ? 'var(--primary)' : '#f1f5f9'}; color: ${link.t === 'QC' ? 'white' : 'var(--text)'}">${link.t}</a>`;
+                navT.innerHTML += btnMarkup;
+                mobileNav.innerHTML += btnMarkup;
             }
             editT.innerHTML += `<div style="display:flex; gap:10px; margin-bottom:5px;"><input type="text" class="tt" value="${link.t}" placeholder="Testo"> <input type="text" class="tl" value="${link.l}" placeholder="URL"></div>`;
         });
@@ -306,11 +334,16 @@
     }
 
     function setFilter(c) { currentFilter = c; renderUI(); renderCats(); }
+    
     function search() {
         const q = document.getElementById('search').value.toLowerCase();
-        document.querySelectorAll('.card').forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? 'flex' : 'none');
+        document.querySelectorAll('#main-grid .card').forEach(c => {
+            c.style.display = c.innerText.toLowerCase().includes(q) ? 'flex' : 'none';
+        });
     }
+
     function login() { if(prompt("PIN ADMIN:") === "160710") document.getElementById('admin-panel').style.display = 'block'; }
+    
     function showTab(id, btn) {
         document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
         document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
@@ -324,20 +357,24 @@
     }
 
     function renderAdminMsgs(data) {
-        const cont = document.getElementById('admin-msgs'); cont.innerHTML = '';
+        const cont = document.getElementById('admin-msgs'); 
+        if(!cont) return;
+        cont.innerHTML = '';
         if(data) Object.keys(data).forEach(k => {
-            cont.innerHTML += `<div class="admin-card"><small>${data[k].date}</small><p>${data[k].text}</p><button onclick="db.ref('messages/${k}').remove()" style="color:red">Elimina</button></div>`;
+            cont.innerHTML += `<div class="admin-card"><small>${data[k].date}</small><p>${data[k].text}</p><button onclick="db.ref('messages/${k}').remove()" style="color:red; border:none; background:none; cursor:pointer;">Elimina</button></div>`;
         });
     }
 
     function renderInventory() {
-        const cont = document.getElementById('admin-inventory'); cont.innerHTML = '';
+        const cont = document.getElementById('admin-inventory'); 
+        if(!cont) return;
+        cont.innerHTML = '';
         items.slice().reverse().forEach(i => {
-            cont.innerHTML += `<div class="item-row" style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#fff; margin-bottom:5px; border-radius:10px;">
-                <span>${i.name}</span>
+            cont.innerHTML += `<div class="item-row" style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#fff; margin-bottom:5px; border-radius:10px; border:1px solid #eee;">
+                <span style="font-size:14px;">${i.name}</span>
                 <div>
-                    <button onclick="editItem(${i.id})" style="color:blue; margin-right:10px; cursor:pointer;">Modifica</button>
-                    <button onclick="db.ref('items/${i.id}').remove()" style="color:red; cursor:pointer;">Elimina</button>
+                    <button onclick="editItem(${i.id})" style="color:blue; margin-right:10px; border:none; background:none; cursor:pointer;">Modifica</button>
+                    <button onclick="if(confirm('Eliminare?')) db.ref('items/${i.id}').remove()" style="color:red; border:none; background:none; cursor:pointer;">Elimina</button>
                 </div>
             </div>`;
         });
