@@ -2,8 +2,16 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
+    <link rel="manifest" href="manifest.json">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://i.ibb.co/KjspMWpk/Full-Logo-Transparent.png">
+    <meta name="apple-mobile-web-app-title" content="Mulebuy">
+
+    <meta name="theme-color" content="#9d7cff">
     <meta name="google-site-verification" content="qMS3rZJY-AlTnwkC161_LgvHIISHG6ocyf95XZZPiGQ" />
     
     <title>Mulebuy Spreadsheet</title>
@@ -20,7 +28,33 @@
 
     <style>
         :root { --primary: #9d7cff; --bg: #f4f7ff; --text: #1e293b; --glass: rgba(255, 255, 255, 0.7); }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--text); overflow-x: hidden; }
+        
+        /* --- MODIFICHE PER EFFETTO APP --- */
+        * { 
+            /* Rende il testo non selezionabile ovunque */
+            -webkit-user-select: none; 
+            user-select: none; 
+            /* Rimuove il fastidioso riquadro blu al tocco su mobile */
+            -webkit-tap-highlight-color: transparent; 
+            -webkit-touch-callout: none;
+        }
+
+        /* Permette di scrivere solo nei campi di testo */
+        input, textarea, #search {
+            -webkit-user-select: text !important;
+            user-select: text !important;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            color: var(--text); 
+            overflow-x: hidden; 
+            /* Blocca il refresh trascinando verso il basso */
+            overscroll-behavior-y: contain; 
+        }
+        /* --- FINE MODIFICHE APP --- */
 
         header { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 20px rgba(0,0,0,0.05); }
         .logo-box { display: flex; align-items: center; gap: 10px; cursor: pointer; }
@@ -68,7 +102,6 @@
 
         .gear { position: fixed; bottom: 20px; right: 20px; width: 40px; height: 40px; background: white; border-radius: 50%; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #cbd5e1; z-index: 1500; }
 
-        /* STILI POPUP NUOVI */
         .popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 3000; align-items: center; justify-content: center; }
         .popup-card { background: white; padding: 30px; border-radius: 30px; max-width: 350px; width: 90%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); position: relative; animation: popShow 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes popShow { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -139,14 +172,12 @@
         <h2>Dashboard Admin</h2>
         <button class="btn btn-p" onclick="location.reload()">Esci e Salva</button>
     </div>
-
     <div class="admin-nav">
         <div class="tab-link active" onclick="showTab('tab-items', this)">PRODOTTI</div>
         <div class="tab-link" onclick="showTab('tab-cats', this)">CATEGORIE</div>
         <div class="tab-link" onclick="showTab('tab-btns', this)">TASTI & SOCIAL</div>
         <div class="tab-link" onclick="showTab('tab-msgs', this)">MESSAGGI</div>
     </div>
-
     <div id="tab-items" class="tab-content">
         <div class="admin-card">
             <h4 id="form-title">Aggiungi Prodotto</h4>
@@ -162,35 +193,44 @@
         </div>
         <div id="admin-inventory"></div>
     </div>
-
     <div id="tab-cats" class="tab-content" style="display:none">
         <div class="admin-card">
             <h4>Gestione Categorie</h4>
-            <input type="text" id="new-cat" placeholder="Nuova categoria (es: Scarpe)">
+            <input type="text" id="new-cat" placeholder="Nuova categoria">
             <button class="btn btn-p" onclick="addCategory()">Aggiungi</button>
         </div>
         <div id="admin-cats-list"></div>
     </div>
-
     <div id="tab-btns" class="tab-content" style="display:none">
         <div class="admin-card">
-            <h4>Tasti Header (Destra - Max 5)</h4>
+            <h4>Tasti Header</h4>
             <div id="top-btns-edit"></div>
             <button class="btn btn-p" onclick="saveSocials('top')">Salva Header</button>
         </div>
         <div class="admin-card">
-            <h4>Tasti Social Footer (Centro - Max 4)</h4>
+            <h4>Tasti Footer</h4>
             <div id="bot-btns-edit"></div>
             <button class="btn btn-p" onclick="saveSocials('bot')">Salva Footer</button>
         </div>
     </div>
-
     <div id="tab-msgs" class="tab-content" style="display:none">
         <div id="admin-msgs"></div>
     </div>
 </div>
 
 <script>
+    // --- LOGICA PWA: ATTIVAZIONE ---
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js').then(reg => {
+                console.log('App installabile pronta!');
+            }).catch(err => {
+                console.log('Errore SW:', err);
+            });
+        });
+    }
+
+    // --- CONFIGURAZIONE FIREBASE ---
     const firebaseConfig = {
         apiKey: "AIzaSyC9fOZGLRps5BT-dSCvSpIjSm0zBcjuDIg",
         authDomain: "spreadseet-mulebuy-database.firebaseapp.com",
@@ -202,8 +242,6 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    
-    // Auth logic
     const auth = firebase.auth();
     const provider = new firebase.auth.GoogleAuthProvider();
     const ADMIN_EMAIL = "simone10erre@gmail.com";
@@ -217,16 +255,10 @@
         db.ref('categories').on('value', snap => { if(snap.val()) { categories = snap.val(); renderCats(); } });
         db.ref('links').on('value', snap => renderLinks(snap.val()));
         db.ref('messages').on('value', snap => renderAdminMsgs(snap.val()));
-
-        // TIMER MOSTRA POPUP (1.5 secondi dopo caricamento)
-        setTimeout(() => {
-            document.getElementById('mulebuy-popup').style.display = 'flex';
-        }, 1500);
+        setTimeout(() => { document.getElementById('mulebuy-popup').style.display = 'flex'; }, 1500);
     };
 
-    function closePopup() {
-        document.getElementById('mulebuy-popup').style.display = 'none';
-    }
+    function closePopup() { document.getElementById('mulebuy-popup').style.display = 'none'; }
 
     function renderUI() {
         const grid = document.getElementById('main-grid');
@@ -238,7 +270,7 @@
             grid.innerHTML += `
                 <div class="card">
                     <div class="badge">${item.cat}</div>
-                    <div class="img-box"><img src="${imgUrl}" alt="${item.name}" loading="lazy" onerror="this.src='https://placehold.co/400x400?text=Immagine+Non+Disponibile'"></div>
+                    <div class="img-box"><img src="${imgUrl}" alt="${item.name}" loading="lazy" onerror="this.src='https://placehold.co/400x400?text=Image+N/A'"></div>
                     <h3>${item.name}</h3>
                     <div class="price">€${item.price}</div>
                     <a href="${item.link}" target="_blank" class="btn btn-p" style="width:100%; box-sizing:border-box;">🛒 ACQUISTA ORA</a>
@@ -280,7 +312,7 @@
         categories.forEach(c => {
             list.innerHTML += `<button class="btn btn-s ${currentFilter===c?'btn-p':''}" onclick="setFilter('${c}')">${c}</button>`;
             sel.innerHTML += `<option value="${c}">${c}</option>`;
-            adm.innerHTML += `<div class="item-row" style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;">${c} <button onclick="delCat('${c}')" style="color:red; border:none; background:none; cursor:pointer;">Elimina</button></div>`;
+            adm.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;">${c} <button onclick="delCat('${c}')" style="color:red; border:none; background:none; cursor:pointer;">Elimina</button></div>`;
         });
     }
 
@@ -304,7 +336,7 @@
 
     function saveSocials(type) {
         let arr = [];
-        if(type === 'top') { const ts = document.querySelectorAll('.tt'), ls = document.querySelectorAll('.tl'); ts.forEach((t, i) => arr.push({t: t.value, l: ls[i].value})); db.ref('links/top').set(arr); } 
+        if(type === 'top') { const ts = document.querySelectorAll('.tt'), ls = document.querySelectorAll('.tl'); ts.forEach((t, i) => arr.push({t: t.value, l: ls[i].value})); db.ref('links/top').set(arr); } 
         else { const ts = document.querySelectorAll('.bt'), ls = document.querySelectorAll('.bl'); ts.forEach((t, i) => arr.push({t: t.value, l: ls[i].value})); db.ref('links/bot').set(arr); }
         alert("Salvato!");
     }
@@ -312,15 +344,15 @@
     function setFilter(c) { currentFilter = c; renderUI(); renderCats(); }
     function search() { const q = document.getElementById('search').value.toLowerCase(); document.querySelectorAll('#main-grid .card').forEach(c => { c.style.display = c.innerText.toLowerCase().includes(q) ? 'flex' : 'none'; }); }
 
-    function login() { 
+    function login() { 
         auth.signInWithPopup(provider).then((result) => {
-            if (result.user.email === ADMIN_EMAIL) { document.getElementById('admin-panel').style.display = 'block'; } 
-            else { alert("Accesso negato: solo l'amministratore simone10erre@gmail.com può accedere."); auth.signOut(); }
-        }).catch((error) => { console.error("Errore login:", error); alert("Errore durante l'autenticazione con Google."); });
+            if (result.user.email === ADMIN_EMAIL) { document.getElementById('admin-panel').style.display = 'block'; } 
+            else { alert("Accesso negato."); auth.signOut(); }
+        });
     }
 
     function showTab(id, btn) { document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none'); document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active')); document.getElementById(id).style.display = 'block'; btn.classList.add('active'); }
-    function openMsg() { const m = prompt("Inviaci un suggerimento o un messaggio:"); if(m) db.ref('messages/' + Date.now()).set({text: m, date: new Date().toLocaleString()}); }
+    function openMsg() { const m = prompt("Inviaci un messaggio:"); if(m) db.ref('messages/' + Date.now()).set({text: m, date: new Date().toLocaleString()}); }
     function renderAdminMsgs(data) {
         const cont = document.getElementById('admin-msgs'); cont.innerHTML = '';
         if(data) Object.keys(data).forEach(k => { cont.innerHTML += `<div class="admin-card"><small>${data[k].date}</small><p>${data[k].text}</p><button onclick="db.ref('messages/${k}').remove()" style="color:red; border:none; background:none; cursor:pointer;">Elimina</button></div>`; });
@@ -328,7 +360,7 @@
     function renderInventory() {
         const cont = document.getElementById('admin-inventory'); cont.innerHTML = '';
         items.slice().reverse().forEach(i => {
-            cont.innerHTML += `<div class="item-row" style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#fff; margin-bottom:5px; border-radius:10px; border:1px solid #eee;">
+            cont.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#fff; margin-bottom:5px; border-radius:10px; border:1px solid #eee;">
                 <span style="font-size:14px;">${i.name}</span>
                 <div><button onclick="editItem(${i.id})" style="color:blue; margin-right:10px; border:none; background:none; cursor:pointer;">Modifica</button>
                     <button onclick="if(confirm('Eliminare?')) db.ref('items/${i.id}').remove()" style="color:red; border:none; background:none; cursor:pointer;">Elimina</button>
