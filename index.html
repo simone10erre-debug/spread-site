@@ -43,9 +43,13 @@
             display: none; margin-top: 25px; width: 100%; max-width: 280px; background: var(--primary); color: white; 
             border: 2px solid white; padding: 18px; border-radius: 20px; font-weight: 900; cursor: pointer;
             box-shadow: 0 10px 20px rgba(157, 124, 255, 0.4); animation: pulse 2s infinite; align-items: center; justify-content: center; gap: 12px;
-            font-size: 16px;
+            font-size: 16px; border: none;
         }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+        /* MODALE IOS */
+        .ios-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 6000; align-items: center; justify-content: center; }
+        .ios-card { background: white; width: 85%; max-width: 320px; padding: 30px; border-radius: 30px; text-align: center; }
 
         /* TASTO TORNA SU */
         #back-to-top {
@@ -72,7 +76,7 @@
         .btn-p { background: var(--primary); color: white; }
         .btn-s { background: #f1f5f9; color: var(--text); font-size: 12px; }
 
-        /* PANNELLO ADMIN (RISTORATO) */
+        /* PANNELLO ADMIN */
         #admin-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 5000; overflow-y: auto; padding: 20px; }
         .admin-card { background: #f4f7ff; border-radius: 25px; padding: 25px; margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.05); }
         .tab-link { font-weight: 700; cursor: pointer; color: #94a3b8; white-space: nowrap; margin-right: 20px; font-size: 14px; }
@@ -118,6 +122,15 @@
 <button id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
     <i class="fa-solid fa-arrow-up"></i>
 </button>
+
+<div id="ios-modal" class="ios-popup">
+    <div class="ios-card">
+        <i class="fa-brands fa-apple" style="font-size:3rem; color:var(--primary)"></i>
+        <h3>Installa su iPhone</h3>
+        <p>1. Tocca il tasto <b>Condividi</b> <i class="fa-solid fa-arrow-up-from-bracket"></i><br>2. Seleziona <b>"Aggiungi alla schermata Home"</b></p>
+        <button class="btn btn-p" style="width:100%" onclick="document.getElementById('ios-modal').style.display='none'">OK</button>
+    </div>
+</div>
 
 <footer style="padding: 60px 5%; background: white; text-align: center; border-top: 1px solid #eee;">
     <div class="cats-bar" id="nav-bottom" style="justify-content: center;"></div>
@@ -196,6 +209,29 @@
     const ADMIN_EMAIL = "simone10erre@gmail.com";
 
     let items = [], categories = ["Scarpe", "Vestiti"], currentFilter = "Tutti", deferredPrompt;
+
+    // LOGICA TASTO INSTALLA
+    const installBtn = document.getElementById('install-btn');
+    const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+
+    if (isIos) {
+        if (window.innerWidth <= 768) installBtn.style.display = 'inline-flex';
+        installBtn.onclick = (e) => { e.preventDefault(); document.getElementById('ios-modal').style.display = 'flex'; };
+    } else {
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (window.innerWidth <= 768) installBtn.style.display = 'inline-flex';
+        });
+        installBtn.onclick = async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') installBtn.style.display = 'none';
+                deferredPrompt = null;
+            }
+        };
+    }
 
     // SCROLL LOGIC
     const btt = document.getElementById('back-to-top');
@@ -276,6 +312,7 @@
     function renderMsgs(data) { const cont = document.getElementById('admin-msgs'); cont.innerHTML = ''; if(data) Object.keys(data).forEach(k => { cont.innerHTML += `<div class="admin-card"><small>${data[k].date}</small><p>${data[k].text}</p><button onclick="db.ref('messages/${k}').remove()" style="color:red; border:none; background:none; font-weight:700;">ELIMINA</button></div>`; }); }
     function addCategory() { const n = document.getElementById('new-cat').value; if(n && !categories.includes(n)) { categories.push(n); db.ref('categories').set(categories); document.getElementById('new-cat').value = ''; } }
     function delCat(c) { categories = categories.filter(x => x !== c); db.ref('categories').set(categories); }
+    if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); }); }
 </script>
 </body>
 </html>
