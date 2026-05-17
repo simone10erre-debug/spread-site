@@ -1,6 +1,6 @@
 {
   "name": "Mulebuy Spreadsheet",
-  "short_name": "Mulebuy finder",
+  "short_name": "Mulebuy Spreadsheet",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#f4f7ff",
