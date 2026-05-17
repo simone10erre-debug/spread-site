@@ -1,0 +1,20 @@
+{
+  "name": "Mulebuy Spreadsheet",
+  "short_name": "Mulebuy finder",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f4f7ff",
+  "theme_color": "#9d7cff",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/KjspMWpk/Full-Logo-Transparent.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.ibb.co/KjspMWpk/Full-Logo-Transparent.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
