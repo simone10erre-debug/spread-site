@@ -5,13 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <link rel="manifest" href="manifest.json">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://i.ibb.co/KjspMWpk/Full-Logo-Transparent.png">
-    <meta name="apple-mobile-web-app-title" content="Mulebuy">
-
     <meta name="theme-color" content="#9d7cff">
+    
     <meta name="google-site-verification" content="qMS3rZJY-AlTnwkC161_LgvHIISHG6ocyf95XZZPiGQ" />
     
     <title>Mulebuy Spreadsheet</title>
@@ -29,17 +27,14 @@
     <style>
         :root { --primary: #9d7cff; --bg: #f4f7ff; --text: #1e293b; --glass: rgba(255, 255, 255, 0.7); }
         
-        /* --- MODIFICHE PER EFFETTO APP --- */
+        /* --- STILI PWA & APP FEEL --- */
         * { 
-            /* Rende il testo non selezionabile ovunque */
             -webkit-user-select: none; 
             user-select: none; 
-            /* Rimuove il fastidioso riquadro blu al tocco su mobile */
             -webkit-tap-highlight-color: transparent; 
             -webkit-touch-callout: none;
         }
 
-        /* Permette di scrivere solo nei campi di testo */
         input, textarea, #search {
             -webkit-user-select: text !important;
             user-select: text !important;
@@ -51,10 +46,8 @@
             margin: 0; 
             color: var(--text); 
             overflow-x: hidden; 
-            /* Blocca il refresh trascinando verso il basso */
             overscroll-behavior-y: contain; 
         }
-        /* --- FINE MODIFICHE APP --- */
 
         header { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 20px rgba(0,0,0,0.05); }
         .logo-box { display: flex; align-items: center; gap: 10px; cursor: pointer; }
@@ -66,57 +59,50 @@
         .hero h1 span { color: var(--primary); }
         .hero p { font-size: 16px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 10px; }
 
+        /* Tasto Installa */
+        #install-btn { 
+            display: none; margin-top: 20px; width: 100%; max-width: 250px; 
+            background: var(--primary); color: white; border: 2px solid white;
+            padding: 15px; border-radius: 15px; font-weight: 900; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(157, 124, 255, 0.3); animation: pulse 2s infinite;
+            align-items: center; justify-content: center; gap: 10px;
+        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+
+        /* Popup iPhone */
+        .ios-popup { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 5000;
+            align-items: center; justify-content: center;
+        }
+        .ios-card { background: white; width: 85%; max-width: 320px; padding: 30px; border-radius: 30px; text-align: center; }
+        .ios-card i { color: var(--primary); font-size: 2.5rem; margin-bottom: 15px; }
+        .step { display: flex; align-items: center; gap: 15px; text-align: left; margin: 20px 0; font-size: 14px; }
+        .step-num { background: var(--primary); color: white; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
+
+        /* Layout */
         .search-container { margin: 30px 0; max-width: 500px; position: relative; }
         #search { width: 100%; padding: 18px 25px; border-radius: 20px; border: 2px solid transparent; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.05); font-size: 16px; outline: none; transition: 0.3s; }
         #search:focus { border-color: var(--primary); }
         .cats-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; }
 
-        #mobile-nav-container { display: none; gap: 10px; flex-wrap: wrap; margin-top: 20px; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
-
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; padding: 0 5% 100px; max-width: 1200px; margin: auto; }
         .card { background: white; border-radius: 25px; padding: 15px; border: 1px solid rgba(0,0,0,0.03); position: relative; transition: 0.4s; display: flex; flex-direction: column; }
-        .card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        
-        .badge { position: absolute; top: 20px; left: 20px; background: var(--glass); backdrop-filter: blur(10px); padding: 5px 12px; border-radius: 10px; font-size: 11px; font-weight: 800; z-index: 5; border: 1px solid rgba(255,255,255,0.3); text-transform: uppercase; }
-        
+        .badge { position: absolute; top: 20px; left: 20px; background: var(--glass); backdrop-filter: blur(10px); padding: 5px 12px; border-radius: 10px; font-size: 11px; font-weight: 800; z-index: 5; text-transform: uppercase; }
         .img-box { width: 100%; aspect-ratio: 1; border-radius: 20px; background: #fff; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
         .img-box img { max-width: 95%; max-height: 95%; object-fit: contain; }
-        
-        .card h3 { font-size: 15px; margin: 10px 0; text-align: center; font-weight: 700; height: 36px; overflow: hidden; }
         .price { font-size: 22px; font-weight: 900; color: var(--primary); text-align: center; margin-bottom: 15px; }
 
         .btn { padding: 12px 20px; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; transition: 0.3s; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; }
         .btn-p { background: var(--primary); color: white; }
         .btn-s { background: #f1f5f9; color: var(--text); font-size: 12px; }
-        .btn-s:hover { background: #e2e8f0; }
-
-        .btn-msg-custom { background: var(--primary); color: white; }
-        .btn-msg-custom img { height: 18px; width: auto; }
-
-        #admin-panel { display: none; background: #fff; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; overflow-y: auto; padding: 40px 5%; box-sizing: border-box; }
-        .admin-nav { display: flex; gap: 15px; margin-bottom: 30px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; }
-        .tab-link { font-weight: 700; cursor: pointer; color: #94a3b8; }
-        .tab-link.active { color: var(--primary); }
-        .admin-card { background: #f8fafc; border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px; border: 1px solid #ddd; box-sizing: border-box; }
 
         .gear { position: fixed; bottom: 20px; right: 20px; width: 40px; height: 40px; background: white; border-radius: 50%; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #cbd5e1; z-index: 1500; }
-
-        .popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 3000; align-items: center; justify-content: center; }
-        .popup-card { background: white; padding: 30px; border-radius: 30px; max-width: 350px; width: 90%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); position: relative; animation: popShow 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popShow { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .popup-card h2 { margin: 0 0 10px; font-weight: 900; color: var(--text); }
-        .popup-card p { color: #64748b; font-size: 14px; margin-bottom: 20px; }
-        .qr-container { background: #f8fafc; padding: 15px; border-radius: 20px; margin-bottom: 20px; display: inline-block; }
-        .qr-container img { width: 180px; height: 180px; display: block; }
-        .close-popup { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #94a3b8; font-weight: bold; }
-        .close-popup:hover { color: var(--text); }
 
         @media (max-width: 768px) { 
             .grid { grid-template-columns: 1fr 1fr; gap: 10px; } 
             .hero h1 { font-size: 34px; } 
             .header-nav { display: none; } 
-            #mobile-nav-container { display: flex; } 
         }
     </style>
 </head>
@@ -129,16 +115,19 @@
             <div style="font-weight:900; font-size:1.2rem;">Mulebuy <span style="color:var(--primary)">Spreadsheet</span></div>
         </div>
         <nav class="header-nav" id="nav-top"></nav>
-        <button class="btn btn-msg-custom" onclick="openMsg()">
-            <img src="https://i.ibb.co/CKDH3Bdw/il-570x-N-4421925538-m69h-removebg-preview.png" alt="">
-            <span>Messaggi</span>
+        <button class="btn btn-p" onclick="openMsg()">
+            <i class="fa-solid fa-envelope"></i> <span>Messaggi</span>
         </button>
     </header>
 
     <div class="hero">
-        <h1>Best Mulebuy <br><span>Global Research</span> Spreadsheet</h1>
-        <p>Your ultimate destination for quality finds</p>
-        <div id="mobile-nav-container"></div>
+        <h1>Best Mulebuy <br><span>Global Research</span></h1>
+        <p>Ultimate quality finds</p>
+        
+        <button id="install-btn"><i class="fa-solid fa-download"></i> INSTALLA APP</button>
+
+        <div id="mobile-nav-container" style="display:none; gap:10px; flex-wrap:wrap; margin-top:20px;"></div>
+        
         <div class="search-container">
             <input type="text" id="search" placeholder="Cerca un articolo..." onkeyup="search()">
         </div>
@@ -149,88 +138,42 @@
 
     <footer style="padding: 60px 5%; background: white; text-align: center; border-top: 1px solid #eee;">
         <div class="cats-bar" id="nav-bottom" style="justify-content: center;"></div>
-        <p style="margin-top:20px; font-size:12px; color:#94a3b8;">© 2024 Mulebuy Global Research. All rights reserved.</p>
+        <p style="margin-top:20px; font-size:12px; color:#94a3b8;">© 2024 Mulebuy Global Research.</p>
     </footer>
 </div>
 
-<div id="mulebuy-popup" class="popup-overlay">
-    <div class="popup-card">
-        <span class="close-popup" onclick="closePopup()">&times;</span>
-        <h2>Registrati ora!</h2>
-        <p>Ricevi i migliori prodotti Mulebuy. Scansiona il QR o clicca il tasto.</p>
-        <div class="qr-container">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://mulebuy.com/register?ref=200132066" alt="QR Register">
+<div id="ios-modal" class="ios-popup">
+    <div class="ios-card">
+        <i class="fa-brands fa-apple"></i>
+        <h3>Installa su iPhone</h3>
+        <p>Aggiungi l'app alla tua home in due tocchi:</p>
+        <div class="step">
+            <div class="step-num">1</div>
+            <div>Tocca il tasto <b>Condividi</b> <i class="fa-solid fa-arrow-up-from-bracket"></i> (in basso o in alto)</div>
         </div>
-        <a href="https://mulebuy.com/register?ref=200132066" target="_blank" class="btn btn-p" style="width: 100%; box-sizing: border-box;">VAI ALLA REGISTRAZIONE</a>
+        <div class="step">
+            <div class="step-num">2</div>
+            <div>Seleziona <b>"Aggiungi alla schermata Home"</b></div>
+        </div>
+        <button class="btn btn-p" style="width:100%" onclick="document.getElementById('ios-modal').style.display='none'">HO CAPITO</button>
     </div>
 </div>
 
 <div class="gear" onclick="login()"><i class="fa-solid fa-gear"></i></div>
 
-<div id="admin-panel">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
-        <h2>Dashboard Admin</h2>
-        <button class="btn btn-p" onclick="location.reload()">Esci e Salva</button>
+<div id="admin-panel" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:2000; overflow-y:auto; padding:30px;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>Admin Panel</h2>
+        <button class="btn btn-p" onclick="location.reload()">Esci</button>
     </div>
-    <div class="admin-nav">
-        <div class="tab-link active" onclick="showTab('tab-items', this)">PRODOTTI</div>
-        <div class="tab-link" onclick="showTab('tab-cats', this)">CATEGORIE</div>
-        <div class="tab-link" onclick="showTab('tab-btns', this)">TASTI & SOCIAL</div>
-        <div class="tab-link" onclick="showTab('tab-msgs', this)">MESSAGGI</div>
-    </div>
-    <div id="tab-items" class="tab-content">
-        <div class="admin-card">
-            <h4 id="form-title">Aggiungi Prodotto</h4>
-            <input type="hidden" id="edit-id">
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <input type="text" id="in-name" placeholder="Nome Articolo">
-                <input type="number" id="in-price" placeholder="Prezzo €">
-            </div>
-            <input type="text" id="in-link" placeholder="Link Prodotto">
-            <input type="text" id="in-img" placeholder="Link Immagine (ImgBB)">
-            <select id="in-cat"></select>
-            <button class="btn btn-p" style="width:100%" onclick="saveItem()">SALVA ARTICOLO</button>
-        </div>
+    <div id="admin-content">
+        <p>Benvenuto admin. Usa i tasti sotto per gestire.</p>
         <div id="admin-inventory"></div>
-    </div>
-    <div id="tab-cats" class="tab-content" style="display:none">
-        <div class="admin-card">
-            <h4>Gestione Categorie</h4>
-            <input type="text" id="new-cat" placeholder="Nuova categoria">
-            <button class="btn btn-p" onclick="addCategory()">Aggiungi</button>
-        </div>
-        <div id="admin-cats-list"></div>
-    </div>
-    <div id="tab-btns" class="tab-content" style="display:none">
-        <div class="admin-card">
-            <h4>Tasti Header</h4>
-            <div id="top-btns-edit"></div>
-            <button class="btn btn-p" onclick="saveSocials('top')">Salva Header</button>
-        </div>
-        <div class="admin-card">
-            <h4>Tasti Footer</h4>
-            <div id="bot-btns-edit"></div>
-            <button class="btn btn-p" onclick="saveSocials('bot')">Salva Footer</button>
-        </div>
-    </div>
-    <div id="tab-msgs" class="tab-content" style="display:none">
-        <div id="admin-msgs"></div>
     </div>
 </div>
 
 <script>
-    // --- LOGICA PWA: ATTIVAZIONE ---
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js').then(reg => {
-                console.log('App installabile pronta!');
-            }).catch(err => {
-                console.log('Errore SW:', err);
-            });
-        });
-    }
-
-    // --- CONFIGURAZIONE FIREBASE ---
+    // --- FIREBASE CONFIG ---
     const firebaseConfig = {
         apiKey: "AIzaSyC9fOZGLRps5BT-dSCvSpIjSm0zBcjuDIg",
         authDomain: "spreadseet-mulebuy-database.firebaseapp.com",
@@ -250,15 +193,49 @@
     let categories = ["Scarpe", "Vestiti", "Accessori"];
     let currentFilter = "Tutti";
 
+    // --- LOGICA PWA & INSTALLAZIONE ---
+    let deferredPrompt;
+    const installBtn = document.getElementById('install-btn');
+    const iosModal = document.getElementById('ios-modal');
+    const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+
+    // Registra Service Worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js');
+        });
+    }
+
+    // Gestione tasto su iPhone
+    if (isIos && window.innerWidth <= 768) {
+        installBtn.style.display = 'inline-flex';
+        installBtn.onclick = () => { iosModal.style.display = 'flex'; };
+    }
+
+    // Gestione tasto su Android
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if (window.innerWidth <= 768) {
+            installBtn.style.display = 'inline-flex';
+        }
+    });
+
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') installBtn.style.display = 'none';
+            deferredPrompt = null;
+        }
+    });
+
+    // --- LOGICA SITO ---
     window.onload = () => {
         db.ref('items').on('value', snap => { items = snap.val() ? Object.values(snap.val()) : []; renderUI(); });
         db.ref('categories').on('value', snap => { if(snap.val()) { categories = snap.val(); renderCats(); } });
         db.ref('links').on('value', snap => renderLinks(snap.val()));
-        db.ref('messages').on('value', snap => renderAdminMsgs(snap.val()));
-        setTimeout(() => { document.getElementById('mulebuy-popup').style.display = 'flex'; }, 1500);
     };
-
-    function closePopup() { document.getElementById('mulebuy-popup').style.display = 'none'; }
 
     function renderUI() {
         const grid = document.getElementById('main-grid');
@@ -270,102 +247,46 @@
             grid.innerHTML += `
                 <div class="card">
                     <div class="badge">${item.cat}</div>
-                    <div class="img-box"><img src="${imgUrl}" alt="${item.name}" loading="lazy" onerror="this.src='https://placehold.co/400x400?text=Image+N/A'"></div>
-                    <h3>${item.name}</h3>
+                    <div class="img-box"><img src="${imgUrl}" alt="${item.name}" loading="lazy"></div>
+                    <h3 style="font-size:15px; text-align:center; height:36px; overflow:hidden;">${item.name}</h3>
                     <div class="price">€${item.price}</div>
-                    <a href="${item.link}" target="_blank" class="btn btn-p" style="width:100%; box-sizing:border-box;">🛒 ACQUISTA ORA</a>
+                    <a href="${item.link}" target="_blank" class="btn btn-p">🛒 ACQUISTA</a>
                 </div>`;
         });
-        renderInventory();
-    }
-
-    function saveItem() {
-        const id = document.getElementById('edit-id').value || Date.now();
-        let rawImg = document.getElementById('in-img').value.trim();
-        if (rawImg.includes("ibb.co") && !rawImg.includes("i.ibb.co")) rawImg = rawImg.replace("ibb.co", "i.ibb.co");
-        const data = { id, name: document.getElementById('in-name').value, price: document.getElementById('in-price').value, link: document.getElementById('in-link').value, img: rawImg, cat: document.getElementById('in-cat').value };
-        if(!data.name || !data.img) return alert("Compila i campi obbligatori!");
-        db.ref('items/' + id).set(data).then(() => { alert("Operazione completata!"); resetForm(); });
-    }
-
-    function editItem(id) {
-        const item = items.find(i => i.id == id);
-        document.getElementById('edit-id').value = item.id;
-        document.getElementById('in-name').value = item.name;
-        document.getElementById('in-price').value = item.price;
-        document.getElementById('in-link').value = item.link;
-        document.getElementById('in-img').value = item.img;
-        document.getElementById('in-cat').value = item.cat;
-        document.getElementById('form-title').innerText = "Modifica Articolo";
-        document.getElementById('admin-panel').scrollTo(0,0);
-    }
-
-    function resetForm() {
-        document.getElementById('edit-id').value = ''; document.getElementById('in-name').value = ''; document.getElementById('in-price').value = '';
-        document.getElementById('in-link').value = ''; document.getElementById('in-img').value = ''; document.getElementById('form-title').innerText = "Aggiungi Prodotto";
     }
 
     function renderCats() {
-        const list = document.getElementById('cats-list'); const sel = document.getElementById('in-cat'); const adm = document.getElementById('admin-cats-list');
+        const list = document.getElementById('cats-list');
         list.innerHTML = `<button class="btn btn-s ${currentFilter==='Tutti'?'btn-p':''}" onclick="setFilter('Tutti')">Tutti</button>`;
-        sel.innerHTML = ''; adm.innerHTML = '';
         categories.forEach(c => {
             list.innerHTML += `<button class="btn btn-s ${currentFilter===c?'btn-p':''}" onclick="setFilter('${c}')">${c}</button>`;
-            sel.innerHTML += `<option value="${c}">${c}</option>`;
-            adm.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;">${c} <button onclick="delCat('${c}')" style="color:red; border:none; background:none; cursor:pointer;">Elimina</button></div>`;
         });
-    }
-
-    function addCategory() { const nc = document.getElementById('new-cat').value.trim(); if(nc) { if(!categories.includes(nc)) { categories.push(nc); db.ref('categories').set(categories); } document.getElementById('new-cat').value=''; } }
-    function delCat(c) { if(confirm("Eliminare la categoria " + c + "?")) { categories = categories.filter(x => x !== c); db.ref('categories').set(categories); } }
-
-    function renderLinks(data) {
-        const navT = document.getElementById('nav-top'); const navB = document.getElementById('nav-bottom'); const mobileNav = document.getElementById('mobile-nav-container');
-        const editT = document.getElementById('top-btns-edit'); const editB = document.getElementById('bot-btns-edit');
-        navT.innerHTML = ''; navB.innerHTML = ''; editT.innerHTML = ''; editB.innerHTML = ''; mobileNav.innerHTML = '';
-        const tops = data?.top || Array(5).fill({t:'', l:''}); const bots = data?.bot || Array(4).fill({t:'', l:''});
-        tops.forEach((link, i) => {
-            if(link.t) { const btnMarkup = `<a href="${link.l}" target="_blank" class="btn btn-s">${link.t}</a>`; navT.innerHTML += btnMarkup; mobileNav.innerHTML += btnMarkup; }
-            editT.innerHTML += `<div style="display:flex; gap:10px; margin-bottom:5px;"><input type="text" class="tt" value="${link.t}" placeholder="Testo"> <input type="text" class="tl" value="${link.l}" placeholder="URL"></div>`;
-        });
-        bots.forEach((link, i) => {
-            if(link.t) navB.innerHTML += `<a href="${link.l}" target="_blank" class="btn btn-s">${link.t}</a>`;
-            editB.innerHTML += `<div style="display:flex; gap:10px; margin-bottom:5px;"><input type="text" class="bt" value="${link.t}" placeholder="Testo"> <input type="text" class="bl" value="${link.l}" placeholder="URL"></div>`;
-        });
-    }
-
-    function saveSocials(type) {
-        let arr = [];
-        if(type === 'top') { const ts = document.querySelectorAll('.tt'), ls = document.querySelectorAll('.tl'); ts.forEach((t, i) => arr.push({t: t.value, l: ls[i].value})); db.ref('links/top').set(arr); } 
-        else { const ts = document.querySelectorAll('.bt'), ls = document.querySelectorAll('.bl'); ts.forEach((t, i) => arr.push({t: t.value, l: ls[i].value})); db.ref('links/bot').set(arr); }
-        alert("Salvato!");
     }
 
     function setFilter(c) { currentFilter = c; renderUI(); renderCats(); }
-    function search() { const q = document.getElementById('search').value.toLowerCase(); document.querySelectorAll('#main-grid .card').forEach(c => { c.style.display = c.innerText.toLowerCase().includes(q) ? 'flex' : 'none'; }); }
+    
+    function search() {
+        const q = document.getElementById('search').value.toLowerCase();
+        document.querySelectorAll('.card').forEach(c => {
+            c.style.display = c.innerText.toLowerCase().includes(q) ? 'flex' : 'none';
+        });
+    }
 
-    function login() { 
+    function login() { 
         auth.signInWithPopup(provider).then((result) => {
-            if (result.user.email === ADMIN_EMAIL) { document.getElementById('admin-panel').style.display = 'block'; } 
+            if (result.user.email === ADMIN_EMAIL) { document.getElementById('admin-panel').style.display = 'block'; } 
             else { alert("Accesso negato."); auth.signOut(); }
         });
     }
 
-    function showTab(id, btn) { document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none'); document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active')); document.getElementById(id).style.display = 'block'; btn.classList.add('active'); }
-    function openMsg() { const m = prompt("Inviaci un messaggio:"); if(m) db.ref('messages/' + Date.now()).set({text: m, date: new Date().toLocaleString()}); }
-    function renderAdminMsgs(data) {
-        const cont = document.getElementById('admin-msgs'); cont.innerHTML = '';
-        if(data) Object.keys(data).forEach(k => { cont.innerHTML += `<div class="admin-card"><small>${data[k].date}</small><p>${data[k].text}</p><button onclick="db.ref('messages/${k}').remove()" style="color:red; border:none; background:none; cursor:pointer;">Elimina</button></div>`; });
-    }
-    function renderInventory() {
-        const cont = document.getElementById('admin-inventory'); cont.innerHTML = '';
-        items.slice().reverse().forEach(i => {
-            cont.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#fff; margin-bottom:5px; border-radius:10px; border:1px solid #eee;">
-                <span style="font-size:14px;">${i.name}</span>
-                <div><button onclick="editItem(${i.id})" style="color:blue; margin-right:10px; border:none; background:none; cursor:pointer;">Modifica</button>
-                    <button onclick="if(confirm('Eliminare?')) db.ref('items/${i.id}').remove()" style="color:red; border:none; background:none; cursor:pointer;">Elimina</button>
-                </div></div>`;
-        });
+    function openMsg() { const m = prompt("Inviaci un suggerimento:"); if(m) db.ref('messages/' + Date.now()).set({text: m, date: new Date().toLocaleString()}); }
+
+    function renderLinks(data) {
+        const navT = document.getElementById('nav-top');
+        const navB = document.getElementById('nav-bottom');
+        navT.innerHTML = ''; navB.innerHTML = '';
+        if(data?.top) data.top.forEach(l => { if(l.t) navT.innerHTML += `<a href="${l.l}" target="_blank" class="btn btn-s">${l.t}</a>` });
+        if(data?.bot) data.bot.forEach(l => { if(l.t) navB.innerHTML += `<a href="${l.l}" target="_blank" class="btn btn-s">${l.t}</a>` });
     }
 </script>
 </body>
