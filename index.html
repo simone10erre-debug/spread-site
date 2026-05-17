@@ -22,33 +22,37 @@
 
     <style>
         :root { --primary: #9d7cff; --bg: #f4f7ff; --text: #1e293b; --glass: rgba(255, 255, 255, 0.7); }
-        * { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+        * { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
         input, textarea, #search { -webkit-user-select: text !important; user-select: text !important; }
 
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--text); overflow-x: hidden; }
 
+        /* HEADER DESKTOP */
         header { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 20px rgba(0,0,0,0.05); }
-        .logo-box { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .logo-box { display: flex; align-items: center; gap: 10px; cursor: pointer; flex-shrink: 0; }
         .logo-box img { height: 40px; }
-        .header-nav { display: flex; align-items: center; gap: 10px; margin-left: auto; margin-right: 15px; }
+        .header-nav { display: flex; align-items: center; gap: 12px; margin-left: auto; margin-right: 20px; }
         
         .hero { padding: 60px 5% 30px; max-width: 1200px; margin: auto; }
-        .hero h1 { font-size: 48px; font-weight: 900; margin: 0; letter-spacing: -2px; line-height: 1; }
+        .hero h1 { font-size: 48px; font-weight: 900; margin: 0; letter-spacing: -2px; line-height: 1.1; }
         .hero h1 span { color: var(--primary); }
         .hero p { font-size: 16px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 10px; }
 
         /* TASTO INSTALLA */
         #install-btn { 
-            display: none; margin-top: 20px; width: 100%; max-width: 250px; background: var(--primary); color: white; 
-            border: 2px solid white; padding: 15px; border-radius: 15px; font-weight: 900; cursor: pointer;
-            box-shadow: 0 10px 20px rgba(157, 124, 255, 0.3); animation: pulse 2s infinite; align-items: center; justify-content: center; gap: 10px;
+            display: none; margin-top: 25px; width: 100%; max-width: 280px; background: var(--primary); color: white; 
+            border: 2px solid white; padding: 18px; border-radius: 20px; font-weight: 900; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(157, 124, 255, 0.4); animation: pulse 2s infinite; align-items: center; justify-content: center; gap: 12px;
+            font-size: 16px;
         }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
         .search-container { margin: 30px 0; max-width: 500px; }
         #search { width: 100%; padding: 18px 25px; border-radius: 20px; border: none; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.05); font-size: 16px; outline: none; }
+        
         .cats-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; }
 
+        /* GRID */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; padding: 0 5% 100px; max-width: 1200px; margin: auto; }
         .card { background: white; border-radius: 25px; padding: 15px; border: 1px solid rgba(0,0,0,0.03); position: relative; transition: 0.4s; display: flex; flex-direction: column; }
         .badge { position: absolute; top: 20px; left: 20px; background: var(--glass); backdrop-filter: blur(10px); padding: 5px 12px; border-radius: 10px; font-size: 11px; font-weight: 800; z-index: 5; }
@@ -65,19 +69,21 @@
         .ios-card { background: white; width: 85%; max-width: 320px; padding: 30px; border-radius: 30px; text-align: center; }
 
         #admin-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 5000; overflow-y: auto; padding: 20px; }
-        .admin-card { background: #f8fafc; border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
         .admin-nav { display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; overflow-x: auto; }
         .tab-link { font-weight: 700; cursor: pointer; color: #94a3b8; white-space: nowrap; }
         .tab-link.active { color: var(--primary); }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; }
 
         .gear { position: fixed; bottom: 20px; right: 20px; width: 45px; height: 45px; background: white; border-radius: 50%; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #cbd5e1; z-index: 2000; }
         
+        /* NAV MOBILE */
+        #mobile-nav-container { display: none; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+
         @media (max-width: 768px) { 
             .grid { grid-template-columns: 1fr 1fr; gap: 10px; } 
             .hero h1 { font-size: 34px; } 
-            .header-nav { display: none; }
-            #mobile-nav-container { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+            .header-nav { display: none; } /* Nascondi i tasti dall'header su mobile */
+            #mobile-nav-container { display: flex; } /* Mostrali sotto l'Hero su mobile */
         }
     </style>
 </head>
@@ -99,6 +105,7 @@
     <button id="install-btn"><i class="fa-solid fa-download"></i> INSTALLA APP</button>
 
     <div id="mobile-nav-container"></div>
+
     <div class="search-container"><input type="text" id="search" placeholder="Cerca un articolo..." onkeyup="search()"></div>
     <div class="cats-bar" id="cats-list"></div>
 </div>
@@ -135,7 +142,7 @@
     </div>
 
     <div id="tab-items" class="tab-content">
-        <div class="admin-card">
+        <div style="background:#f8fafc; padding:20px; border-radius:20px; margin-bottom:20px;">
             <h4 id="form-title">Nuovo Prodotto</h4>
             <input type="hidden" id="edit-id">
             <input type="text" id="in-name" placeholder="Nome Prodotto">
@@ -149,21 +156,21 @@
     </div>
 
     <div id="tab-cats" class="tab-content" style="display:none">
-        <div class="admin-card">
+        <div style="background:#f8fafc; padding:20px; border-radius:20px;">
             <input type="text" id="new-cat" placeholder="Nome categoria">
-            <button class="btn btn-p" style="width:100%" onclick="addCategory()">AGGIUNGI CATEGORIA</button>
+            <button class="btn btn-p" style="width:100%" onclick="addCategory()">AGGIUNGI</button>
         </div>
         <div id="admin-cats-list"></div>
     </div>
 
     <div id="tab-btns" class="tab-content" style="display:none">
-        <div class="admin-card">
-            <h4>Tasti Header (Max 5)</h4>
+        <div style="background:#f8fafc; padding:20px; border-radius:20px; margin-bottom:20px;">
+            <h4>Tasti Header</h4>
             <div id="top-btns-edit"></div>
             <button class="btn btn-p" onclick="saveSocials('top')">SALVA HEADER</button>
         </div>
-        <div class="admin-card">
-            <h4>Tasti Footer (Max 4)</h4>
+        <div style="background:#f8fafc; padding:20px; border-radius:20px;">
+            <h4>Tasti Footer</h4>
             <div id="bot-btns-edit"></div>
             <button class="btn btn-p" onclick="saveSocials('bot')">SALVA FOOTER</button>
         </div>
@@ -192,14 +199,13 @@
 
     let items = [], categories = ["Scarpe", "Vestiti"], currentFilter = "Tutti", deferredPrompt;
 
+    // LOGICA PWA
     const installBtn = document.getElementById('install-btn');
-    const iosModal = document.getElementById('ios-modal');
     const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
 
-    // LOGICA PWA (Android e iOS)
     if (isIos) {
         if (window.innerWidth <= 768) installBtn.style.display = 'inline-flex';
-        installBtn.onclick = () => { iosModal.style.display = 'flex'; };
+        installBtn.onclick = (e) => { e.preventDefault(); document.getElementById('ios-modal').style.display = 'flex'; };
     } else {
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -227,7 +233,7 @@
     function renderUI() {
         const grid = document.getElementById('main-grid'); grid.innerHTML = '';
         items.filter(i => currentFilter === "Tutti" || i.cat === currentFilter).reverse().forEach(item => {
-            grid.innerHTML += `<div class="card"><div class="badge">${item.cat}</div><div class="img-box"><img src="${item.img}"></div><h3 style="text-align:center;">${item.name}</h3><div class="price">€${item.price}</div><a href="${item.link}" target="_blank" class="btn btn-p">ACQUISTA</a></div>`;
+            grid.innerHTML += `<div class="card"><div class="badge">${item.cat}</div><div class="img-box"><img src="${item.img}"></div><h3 style="text-align:center; font-size:15px; height:36px; overflow:hidden;">${item.name}</h3><div class="price">€${item.price}</div><a href="${item.link}" target="_blank" class="btn btn-p">ACQUISTA</a></div>`;
         });
     }
 
@@ -246,13 +252,19 @@
         const navT = document.getElementById('nav-top'), navB = document.getElementById('nav-bottom'), mobN = document.getElementById('mobile-nav-container'), editT = document.getElementById('top-btns-edit'), editB = document.getElementById('bot-btns-edit');
         navT.innerHTML = ''; navB.innerHTML = ''; mobN.innerHTML = ''; editT.innerHTML = ''; editB.innerHTML = '';
         const tops = data?.top || Array(5).fill({t:'', l:''}), bots = data?.bot || Array(4).fill({t:'', l:''});
+        
         tops.forEach(link => {
-            if(link.t) { const b = `<a href="${link.l}" target="_blank" class="btn btn-s">${link.t}</a>`; navT.innerHTML += b; mobN.innerHTML += b; }
-            editT.innerHTML += `<div style="display:flex; gap:5px;"><input type="text" class="tt" value="${link.t}" placeholder="Titolo"> <input type="text" class="tl" value="${link.l}" placeholder="Link"></div>`;
+            if(link.t) {
+                const b = `<a href="${link.l}" target="_blank" class="btn btn-s">${link.t}</a>`;
+                navT.innerHTML += b; // Aggiunge all'header (Desktop)
+                mobN.innerHTML += b; // Aggiunge sotto Hero (Mobile)
+            }
+            editT.innerHTML += `<div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" class="tt" value="${link.t}" placeholder="Titolo"> <input type="text" class="tl" value="${link.l}" placeholder="Link"></div>`;
         });
+        
         bots.forEach(link => {
             if(link.t) navB.innerHTML += `<a href="${link.l}" target="_blank" class="btn btn-s">${link.t}</a>`;
-            editB.innerHTML += `<div style="display:flex; gap:5px;"><input type="text" class="bt" value="${link.t}" placeholder="Titolo"> <input type="text" class="bl" value="${link.l}" placeholder="Link"></div>`;
+            editB.innerHTML += `<div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" class="bt" value="${link.t}" placeholder="Titolo"> <input type="text" class="bl" value="${link.l}" placeholder="Link"></div>`;
         });
     }
 
@@ -286,8 +298,8 @@
     function login() { auth.signInWithPopup(provider).then(res => { if(res.user.email === ADMIN_EMAIL) document.getElementById('admin-panel').style.display = 'block'; else alert("Negato."); }); }
     function setFilter(c) { currentFilter = c; renderUI(); renderCats(); }
     function search() { const q = document.getElementById('search').value.toLowerCase(); document.querySelectorAll('.card').forEach(c => { c.style.display = c.innerText.toLowerCase().includes(q) ? 'flex' : 'none'; }); }
-    function openMsg() { const m = prompt("Suggerimento:"); if(m) db.ref('messages/' + Date.now()).set({text: m, date: new Date().toLocaleString()}); }
-    function renderMsgs(data) { const cont = document.getElementById('admin-msgs'); cont.innerHTML = '<h4>Messaggi</h4>'; if(data) Object.keys(data).forEach(k => { cont.innerHTML += `<div class="admin-card"><small>${data[k].date}</small><p>${data[k].text}</p><button onclick="db.ref('messages/${k}').remove()" style="color:red; border:none; background:none;">Elimina</button></div>`; }); }
+    function openMsg() { const m = prompt("Messaggio:"); if(m) db.ref('messages/' + Date.now()).set({text: m, date: new Date().toLocaleString()}); }
+    function renderMsgs(data) { const cont = document.getElementById('admin-msgs'); cont.innerHTML = '<h4>Messaggi</h4>'; if(data) Object.keys(data).forEach(k => { cont.innerHTML += `<div style="background:#f8fafc; padding:10px; margin-bottom:10px; border-radius:10px;"><small>${data[k].date}</small><p>${data[k].text}</p><button onclick="db.ref('messages/${k}').remove()" style="color:red; border:none; background:none;">Elimina</button></div>`; }); }
 
     if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); }); }
 </script>
