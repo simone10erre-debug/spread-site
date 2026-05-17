@@ -27,7 +27,7 @@
 
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--text); overflow-x: hidden; }
 
-        /* HEADER DESKTOP */
+        /* HEADER */
         header { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 20px rgba(0,0,0,0.05); }
         .logo-box { display: flex; align-items: center; gap: 10px; cursor: pointer; flex-shrink: 0; }
         .logo-box img { height: 40px; }
@@ -47,12 +47,19 @@
         }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
+        /* TASTO TORNA SU */
+        #back-to-top {
+            position: fixed; bottom: 80px; right: 20px; width: 45px; height: 45px; background: var(--primary);
+            color: white; border-radius: 50%; display: none; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 2000; box-shadow: 0 5px 15px rgba(157, 124, 255, 0.4); border: none;
+            transition: 0.3s;
+        }
+
         .search-container { margin: 30px 0; max-width: 500px; }
         #search { width: 100%; padding: 18px 25px; border-radius: 20px; border: none; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.05); font-size: 16px; outline: none; }
         
         .cats-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; }
 
-        /* GRID */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; padding: 0 5% 100px; max-width: 1200px; margin: auto; }
         .card { background: white; border-radius: 25px; padding: 15px; border: 1px solid rgba(0,0,0,0.03); position: relative; transition: 0.4s; display: flex; flex-direction: column; }
         .badge { position: absolute; top: 20px; left: 20px; background: var(--glass); backdrop-filter: blur(10px); padding: 5px 12px; border-radius: 10px; font-size: 11px; font-weight: 800; z-index: 5; }
@@ -69,21 +76,18 @@
         .ios-card { background: white; width: 85%; max-width: 320px; padding: 30px; border-radius: 30px; text-align: center; }
 
         #admin-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 5000; overflow-y: auto; padding: 20px; }
-        .admin-nav { display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; overflow-x: auto; }
-        .tab-link { font-weight: 700; cursor: pointer; color: #94a3b8; white-space: nowrap; }
+        .tab-link { font-weight: 700; cursor: pointer; color: #94a3b8; white-space: nowrap; margin-right: 15px; }
         .tab-link.active { color: var(--primary); }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; }
 
         .gear { position: fixed; bottom: 20px; right: 20px; width: 45px; height: 45px; background: white; border-radius: 50%; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #cbd5e1; z-index: 2000; }
         
-        /* NAV MOBILE */
         #mobile-nav-container { display: none; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
 
         @media (max-width: 768px) { 
             .grid { grid-template-columns: 1fr 1fr; gap: 10px; } 
             .hero h1 { font-size: 34px; } 
-            .header-nav { display: none; } /* Nascondi i tasti dall'header su mobile */
-            #mobile-nav-container { display: flex; } /* Mostrali sotto l'Hero su mobile */
+            .header-nav { display: none; }
+            #mobile-nav-container { display: flex; }
         }
     </style>
 </head>
@@ -103,7 +107,6 @@
     <p>Find your next favorite item</p>
     
     <button id="install-btn"><i class="fa-solid fa-download"></i> INSTALLA APP</button>
-
     <div id="mobile-nav-container"></div>
 
     <div class="search-container"><input type="text" id="search" placeholder="Cerca un articolo..." onkeyup="search()"></div>
@@ -111,6 +114,10 @@
 </div>
 
 <div class="grid" id="main-grid"></div>
+
+<button id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+    <i class="fa-solid fa-arrow-up"></i>
+</button>
 
 <footer style="padding: 60px 5%; background: white; text-align: center; border-top: 1px solid #eee;">
     <div class="cats-bar" id="nav-bottom" style="justify-content: center;"></div>
@@ -133,14 +140,13 @@
         <h2>Admin Dashboard</h2>
         <button class="btn btn-p" onclick="location.reload()">CHIUDI</button>
     </div>
-
-    <div class="admin-nav">
+    <div class="admin-nav" style="display:flex; overflow-x:auto; padding-bottom:10px; margin-bottom:20px;">
         <div class="tab-link active" onclick="showTab('tab-items', this)">PRODOTTI</div>
         <div class="tab-link" onclick="showTab('tab-cats', this)">CATEGORIE</div>
         <div class="tab-link" onclick="showTab('tab-btns', this)">TASTI & SOCIAL</div>
         <div class="tab-link" onclick="showTab('tab-msgs', this)">MESSAGGI</div>
     </div>
-
+    
     <div id="tab-items" class="tab-content">
         <div style="background:#f8fafc; padding:20px; border-radius:20px; margin-bottom:20px;">
             <h4 id="form-title">Nuovo Prodotto</h4>
@@ -150,7 +156,7 @@
             <input type="text" id="in-link" placeholder="Link Mulebuy">
             <input type="text" id="in-img" placeholder="Link Immagine">
             <select id="in-cat"></select>
-            <button class="btn btn-p" style="width:100%" onclick="saveItem()">SALVA</button>
+            <button class="btn btn-p" style="width:100%" onclick="saveItem()">SALVA PRODOTTO</button>
         </div>
         <div id="admin-inventory"></div>
     </div>
@@ -158,19 +164,19 @@
     <div id="tab-cats" class="tab-content" style="display:none">
         <div style="background:#f8fafc; padding:20px; border-radius:20px;">
             <input type="text" id="new-cat" placeholder="Nome categoria">
-            <button class="btn btn-p" style="width:100%" onclick="addCategory()">AGGIUNGI</button>
+            <button class="btn btn-p" style="width:100%" onclick="addCategory()">AGGIUNGI CATEGORIA</button>
         </div>
-        <div id="admin-cats-list"></div>
+        <div id="admin-cats-list" style="margin-top:20px;"></div>
     </div>
 
     <div id="tab-btns" class="tab-content" style="display:none">
         <div style="background:#f8fafc; padding:20px; border-radius:20px; margin-bottom:20px;">
-            <h4>Tasti Header</h4>
+            <h4>Tasti Header (Max 5)</h4>
             <div id="top-btns-edit"></div>
             <button class="btn btn-p" onclick="saveSocials('top')">SALVA HEADER</button>
         </div>
         <div style="background:#f8fafc; padding:20px; border-radius:20px;">
-            <h4>Tasti Footer</h4>
+            <h4>Tasti Footer (Max 4)</h4>
             <div id="bot-btns-edit"></div>
             <button class="btn btn-p" onclick="saveSocials('bot')">SALVA FOOTER</button>
         </div>
@@ -199,7 +205,17 @@
 
     let items = [], categories = ["Scarpe", "Vestiti"], currentFilter = "Tutti", deferredPrompt;
 
-    // LOGICA PWA
+    // SCROLL & BACK TO TOP
+    const btt = document.getElementById('back-to-top');
+    window.onscroll = () => {
+        if (document.body.scrollTop > 500 || document.documentElement.scrollTop > 500) {
+            btt.style.display = "flex";
+        } else {
+            btt.style.display = "none";
+        }
+    };
+
+    // PWA LOGIC
     const installBtn = document.getElementById('install-btn');
     const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
 
@@ -222,7 +238,7 @@
         };
     }
 
-    // CARICAMENTO DATI
+    // FIREBASE DATA LOADING
     window.onload = () => {
         db.ref('items').on('value', snap => { items = snap.val() ? Object.values(snap.val()) : []; renderUI(); renderInventory(); });
         db.ref('categories').on('value', snap => { if(snap.val()) { categories = snap.val(); renderCats(); } });
@@ -244,35 +260,22 @@
         categories.forEach(c => {
             list.innerHTML += `<button class="btn btn-s ${currentFilter===c?'btn-p':''}" onclick="setFilter('${c}')">${c}</button>`;
             sel.innerHTML += `<option value="${c}">${c}</option>`;
-            adm.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;">${c} <button onclick="delCat('${c}')" style="color:red; border:none; background:none;">X</button></div>`;
+            adm.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee; background:white; margin-bottom:5px; border-radius:10px;">${c} <button onclick="delCat('${c}')" style="color:red; border:none; background:none; cursor:pointer;">Elimina</button></div>`;
         });
     }
 
     function renderLinks(data) {
-        const navT = document.getElementById('nav-top'), navB = document.getElementById('nav-bottom'), mobN = document.getElementById('mobile-nav-container'), editT = document.getElementById('top-btns-edit'), editB = document.getElementById('bot-btns-edit');
-        navT.innerHTML = ''; navB.innerHTML = ''; mobN.innerHTML = ''; editT.innerHTML = ''; editB.innerHTML = '';
+        const navT = document.getElementById('nav-top'), mobN = document.getElementById('mobile-nav-container'), navB = document.getElementById('nav-bottom'), editT = document.getElementById('top-btns-edit'), editB = document.getElementById('bot-btns-edit');
+        navT.innerHTML = ''; mobN.innerHTML = ''; navB.innerHTML = ''; editT.innerHTML = ''; editB.innerHTML = '';
         const tops = data?.top || Array(5).fill({t:'', l:''}), bots = data?.bot || Array(4).fill({t:'', l:''});
-        
-        tops.forEach(link => {
-            if(link.t) {
-                const b = `<a href="${link.l}" target="_blank" class="btn btn-s">${link.t}</a>`;
-                navT.innerHTML += b; // Aggiunge all'header (Desktop)
-                mobN.innerHTML += b; // Aggiunge sotto Hero (Mobile)
-            }
-            editT.innerHTML += `<div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" class="tt" value="${link.t}" placeholder="Titolo"> <input type="text" class="tl" value="${link.l}" placeholder="Link"></div>`;
+        tops.forEach(l => {
+            if(l.t) { const b = `<a href="${l.l}" target="_blank" class="btn btn-s">${l.t}</a>`; navT.innerHTML += b; mobN.innerHTML += b; }
+            editT.innerHTML += `<div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" class="tt" value="${l.t}" placeholder="Titolo"> <input type="text" class="tl" value="${l.l}" placeholder="Link"></div>`;
         });
-        
-        bots.forEach(link => {
-            if(link.t) navB.innerHTML += `<a href="${link.l}" target="_blank" class="btn btn-s">${link.t}</a>`;
-            editB.innerHTML += `<div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" class="bt" value="${link.t}" placeholder="Titolo"> <input type="text" class="bl" value="${link.l}" placeholder="Link"></div>`;
+        bots.forEach(l => {
+            if(l.t) navB.innerHTML += `<a href="${l.l}" target="_blank" class="btn btn-s">${l.t}</a>`;
+            editB.innerHTML += `<div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" class="bt" value="${l.t}" placeholder="Titolo"> <input type="text" class="bl" value="${l.l}" placeholder="Link"></div>`;
         });
-    }
-
-    function saveSocials(type) {
-        let arr = [];
-        if(type === 'top') { document.querySelectorAll('.tt').forEach((t, i) => arr.push({t: t.value, l: document.querySelectorAll('.tl')[i].value})); db.ref('links/top').set(arr); }
-        else { document.querySelectorAll('.bt').forEach((t, i) => arr.push({t: t.value, l: document.querySelectorAll('.bl')[i].value})); db.ref('links/bot').set(arr); }
-        alert("Salvati!");
     }
 
     function saveItem() {
@@ -283,13 +286,20 @@
 
     function renderInventory() {
         const cont = document.getElementById('admin-inventory'); cont.innerHTML = '<h4>Inventario</h4>';
-        items.slice().reverse().forEach(i => { cont.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; background:white; margin-bottom:5px; border-radius:10px;"><span>${i.name}</span><div><button onclick="editItem('${i.id}')" style="color:blue; border:none; background:none;">Modifica</button><button onclick="db.ref('items/${i.id}').remove()" style="color:red; border:none; background:none;">Elimina</button></div></div>`; });
+        items.slice().reverse().forEach(i => { cont.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; background:white; margin-bottom:5px; border-radius:10px;"><span>${i.name}</span><div><button onclick="editItem('${i.id}')" style="color:blue; border:none; background:none; cursor:pointer;">Modifica</button><button onclick="db.ref('items/${i.id}').remove()" style="color:red; border:none; background:none; cursor:pointer;">Elimina</button></div></div>`; });
     }
 
     function editItem(id) {
         const i = items.find(x => x.id == id);
         document.getElementById('edit-id').value = i.id; document.getElementById('in-name').value = i.name; document.getElementById('in-price').value = i.price; document.getElementById('in-link').value = i.link; document.getElementById('in-img').value = i.img; document.getElementById('in-cat').value = i.cat;
-        document.getElementById('form-title').innerText = "Modifica"; document.getElementById('admin-panel').scrollTo(0,0);
+        document.getElementById('form-title').innerText = "Modifica Prodotto"; document.getElementById('admin-panel').scrollTo(0,0);
+    }
+
+    function saveSocials(type) {
+        let arr = [];
+        if(type === 'top') { document.querySelectorAll('.tt').forEach((t, i) => arr.push({t: t.value, l: document.querySelectorAll('.tl')[i].value})); db.ref('links/top').set(arr); }
+        else { document.querySelectorAll('.bt').forEach((t, i) => arr.push({t: t.value, l: document.querySelectorAll('.bl')[i].value})); db.ref('links/bot').set(arr); }
+        alert("Salvati!");
     }
 
     function addCategory() { const n = document.getElementById('new-cat').value; if(n && !categories.includes(n)) { categories.push(n); db.ref('categories').set(categories); document.getElementById('new-cat').value = ''; } }
@@ -299,7 +309,7 @@
     function setFilter(c) { currentFilter = c; renderUI(); renderCats(); }
     function search() { const q = document.getElementById('search').value.toLowerCase(); document.querySelectorAll('.card').forEach(c => { c.style.display = c.innerText.toLowerCase().includes(q) ? 'flex' : 'none'; }); }
     function openMsg() { const m = prompt("Messaggio:"); if(m) db.ref('messages/' + Date.now()).set({text: m, date: new Date().toLocaleString()}); }
-    function renderMsgs(data) { const cont = document.getElementById('admin-msgs'); cont.innerHTML = '<h4>Messaggi</h4>'; if(data) Object.keys(data).forEach(k => { cont.innerHTML += `<div style="background:#f8fafc; padding:10px; margin-bottom:10px; border-radius:10px;"><small>${data[k].date}</small><p>${data[k].text}</p><button onclick="db.ref('messages/${k}').remove()" style="color:red; border:none; background:none;">Elimina</button></div>`; }); }
+    function renderMsgs(data) { const cont = document.getElementById('admin-msgs'); cont.innerHTML = '<h4>Messaggi</h4>'; if(data) Object.keys(data).forEach(k => { cont.innerHTML += `<div style="background:#f8fafc; padding:10px; margin-bottom:10px; border-radius:10px;"><small>${data[k].date}</small><p>${data[k].text}</p><button onclick="db.ref('messages/${k}').remove()" style="color:red; border:none; background:none; cursor:pointer;">Elimina</button></div>`; }); }
 
     if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); }); }
 </script>
